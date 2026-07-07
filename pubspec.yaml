@@ -36,6 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^3.3.2
   wireguard_flutter_plus: ^1.0.6
+  lucide_icons: ^0.257.0
+  flutter_svg: ^2.0.0
+  url_launcher: ^6.3.2
+  shared_preferences: ^2.5.5
+  change_app_package_name: ^1.5.0
+  flutter_native_splash: ^2.4.0
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +54,37 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # Brand asset generators (run once to produce native icons/splash):
+  #   dart run flutter_launcher_icons
+  #   dart run flutter_native_splash:create
+  # flutter_native_splash is a runtime dependency (preserve/remove API) above.
+  flutter_launcher_icons: ^0.14.0
+
+# App icon — shield-check, primary background (design spec 8장)
+# 색상 단일 출처는 lib/resources/theme/app_colors.dart. 빌드 시점 에셋 생성기는
+# Dart 상수를 참조할 수 없어, 값을 app_colors.dart와 일치시키고 파일 내 중복은
+# YAML 앵커(&/*)로 각 색을 한 번만 정의해 제거한다.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: &brand_primary "#0062FF" # = AppColors.primary
+  adaptive_icon_background: *brand_primary
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+
+# Splash — static branding, light only (design spec 8장). 다크 모드 미지원.
+# Android 12+는 splash 아이콘을 원형으로 마스킹하므로, 워드마크가 잘리지 않도록
+# 12+ 전용 이미지는 아이콘(shield)만 안전 원 안에 넣은 별도 에셋을 쓴다.
+# Android 11 이하·iOS는 원형 마스킹이 없어 아이콘+워드마크 로고를 그대로 쓴다.
+flutter_native_splash:
+  color: &brand_bg_light "#F7F9FC" # = AppColors.bg
+  image: "assets/splash/splash_logo.png"
+  android_12:
+    color: *brand_bg_light
+    image: "assets/splash/splash_icon_android12.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -58,6 +95,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/icon/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

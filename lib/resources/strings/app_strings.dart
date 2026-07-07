@@ -1,17 +1,57 @@
+/// 문구 단일 출처 (디자인 스펙 4장 — 쉬운 말). 코드에 하드코딩하지 않는다.
 abstract final class AppStrings {
   static const String appName = 'Hushnet';
-  static const String tagline = '켜면 바로, 안전한 연결';
+  static const String appVersion = '1.0.0';
 
-  static const String statusConnected = '연결됨';
-  static const String statusConnecting = '연결 중…';
-  static const String statusDisconnecting = '해제 중…';
-  static const String statusDisconnected = '연결 안 됨';
-  static const String statusError = '연결 오류';
+  // 서버 (Phase A: 단일 국가, 정보 표기)
+  static const String serverLabel = '대한민국 서버';
 
-  static const String connect = '연결';
-  static const String disconnect = '연결 해제';
+  // 스플래시
+  static const String splashTagline = '기록 없이, 켜면 바로 보호돼요';
 
-  static const String noConfig = '연결할 서버 설정이 아직 없습니다.';
-  static const String connectFailed = '연결에 실패했습니다. 다시 시도해 주세요.';
-  static const String disconnectFailed = '연결 해제에 실패했습니다.';
+  // 권한 게이트
+  static const String permissionTitle = '안전하게 연결하려면\nVPN 권한이 필요해요';
+  static const String permissionPointUsage = '이 권한은 VPN 연결에만 사용해요';
+  static const String permissionPointScope = '모든 인터넷 연결이 암호화 서버를 거쳐요';
+  static const String permissionPointNoLog = '이용 기록은 남기지 않아요';
+  static const String permissionAllow = '권한 허용하기';
+  static const String permissionDenied = '권한을 허용해야 앱을 사용할 수 있어요';
+
+  // Home — 연결 안 됨
+  static const String stateDisconnectedChip = '연결되지 않음';
+  static const String stateDisconnectedCaption = '버튼을 눌러 안전한 연결을 시작하세요';
+  static const String actionConnect = '연결하기';
+
+  // Home — 연결 중
+  static const String stateConnectingChip = '연결하는 중...';
+  static const String stateConnectingCaption = '잠시만 기다려 주세요';
+  static const String actionCancel = '취소';
+
+  // Home — 연결됨
+  static const String stateConnectedChipPrefix = '연결됨';
+  static const String stateConnectedCaption = '안전하게 보호되고 있어요';
+  static const String actionDisconnect = '연결 해제하기';
+  static const String statDownload = '다운로드';
+  static const String statUpload = '업로드';
+
+  // Home — 연결 실패
+  static const String stateFailedChip = '연결에 실패했어요';
+  static const String stateFailedCaption = '잠시 후 다시 시도해 주세요. 계속 실패하면 문의해 주세요.';
+  static const String actionRetry = '다시 시도';
+
+  // 내부 오류 신호 (Home의 "연결 실패" 상태로 표현되며, 문구 자체는 화면에 노출되지 않음)
+  static const String noConfig = '연결할 서버 설정이 아직 없어요.';
+  static const String connectFailed = '연결에 실패했어요. 다시 시도해 주세요.';
+  static const String disconnectFailed = '연결 해제에 실패했어요.';
+
+  // 정보 화면
+  static const String infoTitle = '정보';
+  static const String noLogCardTitle = '이용 기록을 남기지 않아요';
+  static const String noLogCardBody =
+      '어떤 사이트에 접속했는지, 무엇을 했는지 기록하거나 저장하지 않아요.';
+  static const String privacyPolicy = '개인정보처리방침';
+  static String versionFooter(String version) => 'Hushnet 버전 $version';
+
+  /// 개인정보처리방침 URL — 배포 전 확정(자리표시자 이음새, 회신 문서 5번).
+  static const String privacyPolicyUrl = 'https://hushnet.example.com/privacy';
 }

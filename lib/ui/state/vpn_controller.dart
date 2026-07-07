@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/models/vpn_traffic.dart';
 import '../../data/models/wireguard_config.dart';
 import '../../data/repositories/bundled_vpn_config.dart';
 import '../../data/repositories/static_vpn_config_repository.dart';
@@ -12,6 +14,14 @@ final vpnServiceProvider = Provider<VpnService>((ref) => VpnService());
 
 final vpnStatusProvider = StreamProvider<VpnConnectionStatus>((ref) {
   return ref.watch(vpnServiceProvider).statusStream;
+});
+
+/// 연결됨 상태에서 실시간 트래픽(속도·경과시간)을 방출한다.
+final vpnTrafficProvider = StreamProvider<VpnTraffic>((ref) {
+  return ref
+      .watch(vpnServiceProvider)
+      .trafficStream
+      .map(VpnTraffic.fromSnapshot);
 });
 
 final vpnConfigRepositoryProvider = Provider<VpnConfigRepository>(
@@ -32,18 +42,26 @@ class VpnController extends Notifier<String?> {
     WireGuardConfig? config;
     try {
       config = await _configRepository.getConfig();
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[HushnetDiag] getConfig failed: $e\n$st');
       state = AppStrings.connectFailed;
       return;
     }
     if (config == null) {
+      debugPrint('[HushnetDiag] config is null (bundled config not ready)');
       state = AppStrings.noConfig;
       return;
     }
+    debugPrint(
+      '[HushnetDiag] config ready: name=${config.name} '
+      'serverAddress=${config.serverAddress} '
+      'wgLen=${config.wgQuickConfig.length}',
+    );
     state = null;
     try {
       await _service.connect(config);
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[HushnetDiag] connect failed: $e\n$st');
       state = AppStrings.connectFailed;
     }
   }

@@ -8,8 +8,9 @@ abstract final class AppTheme {
     colorScheme: ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       primary: AppColors.primary,
+      surface: AppColors.surface,
       error: AppColors.error,
     ),
-    scaffoldBackgroundColor: AppColors.background,
+    scaffoldBackgroundColor: AppColors.bg,
   );
 }
