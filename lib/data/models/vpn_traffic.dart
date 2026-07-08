@@ -1,4 +1,5 @@
-/// 플러그인 trafficSnapshot(Map)을 앱 도메인 값으로 감싼 모델.
+/// 다운로드·업로드 속도(bytes/s)와 경과 시간을 담는 도메인 값.
+/// 속도는 [TrafficSpeedCalculator]가 플러그인 누적 총량의 차분으로 계산한다.
 /// 연결됨 상태에서만 유효하다.
 class VpnTraffic {
   const VpnTraffic({
@@ -18,14 +19,4 @@ class VpnTraffic {
     uploadBytesPerSecond: 0,
     duration: '00:00:00',
   );
-
-  factory VpnTraffic.fromSnapshot(Map<String, dynamic> snapshot) {
-    double toDouble(Object? value) =>
-        value is num ? value.toDouble() : 0;
-    return VpnTraffic(
-      downloadBytesPerSecond: toDouble(snapshot['downloadSpeed']),
-      uploadBytesPerSecond: toDouble(snapshot['uploadSpeed']),
-      duration: snapshot['duration']?.toString() ?? '00:00:00',
-    );
-  }
 }

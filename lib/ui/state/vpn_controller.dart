@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/traffic_speed_calculator.dart';
 import '../../data/models/vpn_traffic.dart';
 import '../../data/models/wireguard_config.dart';
 import '../../data/repositories/bundled_vpn_config.dart';
@@ -18,10 +19,11 @@ final vpnStatusProvider = StreamProvider<VpnConnectionStatus>((ref) {
 
 /// 연결됨 상태에서 실시간 트래픽(속도·경과시간)을 방출한다.
 final vpnTrafficProvider = StreamProvider<VpnTraffic>((ref) {
+  final speedCalculator = TrafficSpeedCalculator();
   return ref
       .watch(vpnServiceProvider)
       .trafficStream
-      .map(VpnTraffic.fromSnapshot);
+      .map((snapshot) => speedCalculator.addSnapshot(snapshot, DateTime.now()));
 });
 
 final vpnConfigRepositoryProvider = Provider<VpnConfigRepository>(
