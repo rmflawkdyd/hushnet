@@ -3,8 +3,19 @@ abstract final class AppStrings {
   static const String appName = 'Hushnet';
   static const String appVersion = '1.0.0';
 
-  // 서버 (Phase A: 단일 국가, 정보 표기)
-  static const String serverLabel = '대한민국 서버';
+  // 서버 선택 (Phase B — 다국가)
+  static const String serverChange = '변경';
+  static const String serverNotSelected = '서버를 고르지 않았어요';
+  static const String serverSheetTitle = '서버 선택';
+  static const String serverSheetSubtitle = '연결할 국가를 골라주세요';
+  static const String serverStatusFull = '혼잡';
+  static const String serverStatusDown = '점검 중';
+
+  /// 목록 없음 — 빈 목록 / 수신 실패(캐시 없음) / 최초 수신 전을 함께 덮으므로
+  /// "서버가 없다"고 단정하지 않는다.
+  static const String serverEmptyTitle = '서버 목록을 준비하고 있어요';
+  static const String serverEmptyBody = '잠시 후 다시 시도해 주세요';
+  static const String serverVanished = '선택한 서버를 더 이상 쓸 수 없어 기본 서버로 바꿨어요';
 
   // 스플래시
   static const String splashTagline = '기록 없이, 켜면 바로 보호돼요';

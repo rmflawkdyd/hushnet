@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:hushnet_flutter/data/models/vpn_server.dart';
 import 'package:hushnet_flutter/data/models/vpn_traffic.dart';
 import 'package:hushnet_flutter/domain/entities/vpn_connection_status.dart';
 import 'package:hushnet_flutter/resources/strings/app_strings.dart';
@@ -9,15 +10,63 @@ import 'package:hushnet_flutter/resources/theme/app_theme.dart';
 import 'package:hushnet_flutter/ui/pages/home_page.dart';
 import 'package:hushnet_flutter/ui/pages/info_page.dart';
 import 'package:hushnet_flutter/ui/pages/permission_gate_page.dart';
+import 'package:hushnet_flutter/ui/state/server_selection_controller.dart';
 import 'package:hushnet_flutter/ui/state/vpn_controller.dart';
 
-Widget _homeWith(VpnConnectionStatus status, {VpnTraffic? traffic}) {
+const _servers = [
+  VpnServer(
+    id: 'jp-oracle-1',
+    country: '일본',
+    countryCode: 'JP',
+    city: '도쿄',
+    endpoint: 'jp.example:51820',
+    serverPublicKey: 'server-public',
+    dns: '1.1.1.1',
+    allowedIps: '0.0.0.0/0, ::/0',
+    keyVersion: 1,
+    status: VpnServerStatus.active,
+  ),
+  VpnServer(
+    id: 'us-west-1',
+    country: '미국',
+    countryCode: 'US',
+    city: '서부',
+    endpoint: 'us.example:51820',
+    serverPublicKey: 'server-public-us',
+    dns: '1.1.1.1',
+    allowedIps: '0.0.0.0/0, ::/0',
+    keyVersion: 1,
+    status: VpnServerStatus.down,
+  ),
+];
+
+class _StubServerList extends ServerListNotifier {
+  _StubServerList(this.servers);
+
+  final List<VpnServer> servers;
+
+  @override
+  Future<List<VpnServer>> build() async => servers;
+}
+
+class _StubSelectedServerId extends SelectedServerIdNotifier {
+  @override
+  Future<String?> build() async => null;
+}
+
+Widget _homeWith(
+  VpnConnectionStatus status, {
+  VpnTraffic? traffic,
+  List<VpnServer> servers = _servers,
+}) {
   return ProviderScope(
     overrides: [
       vpnStatusProvider.overrideWith((ref) => Stream.value(status)),
       vpnTrafficProvider.overrideWith(
         (ref) => Stream.value(traffic ?? VpnTraffic.zero),
       ),
+      serverListProvider.overrideWith(() => _StubServerList(servers)),
+      selectedServerIdProvider.overrideWith(_StubSelectedServerId.new),
     ],
     child: MaterialApp(theme: AppTheme.light, home: const HomePage()),
   );
@@ -32,14 +81,43 @@ Future<void> _pumpPhone(WidgetTester tester, Widget widget) async {
 }
 
 void main() {
-  testWidgets('연결 안 됨 상태: 상태칩·연결하기·서버 라벨이 보인다', (tester) async {
+  testWidgets('연결 안 됨 상태: 상태칩·연결하기·서버 선택 바가 보인다', (tester) async {
     await _pumpPhone(tester, _homeWith(VpnConnectionStatus.disconnected));
     await tester.pumpAndSettle();
 
     expect(find.text(AppStrings.appName), findsOneWidget);
     expect(find.text(AppStrings.stateDisconnectedChip), findsOneWidget);
     expect(find.text(AppStrings.actionConnect), findsOneWidget);
-    expect(find.text(AppStrings.serverLabel), findsOneWidget);
+    expect(find.text('일본'), findsOneWidget);
+    expect(find.text(AppStrings.serverChange), findsOneWidget);
+  });
+
+  testWidgets('서버 선택 바를 누르면 목록 시트가 열리고 status가 표시된다', (tester) async {
+    await _pumpPhone(tester, _homeWith(VpnConnectionStatus.disconnected));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(AppStrings.serverChange));
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.serverSheetTitle), findsOneWidget);
+    expect(find.text(AppStrings.serverSheetSubtitle), findsOneWidget);
+    expect(find.text('미국'), findsOneWidget);
+    expect(find.text(AppStrings.serverStatusDown), findsOneWidget);
+  });
+
+  testWidgets('목록이 비면 시트는 중립 문구의 목록 없음을 보여준다', (tester) async {
+    await _pumpPhone(
+      tester,
+      _homeWith(VpnConnectionStatus.disconnected, servers: const []),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(AppStrings.serverChange));
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.serverEmptyTitle), findsOneWidget);
+    expect(find.text(AppStrings.actionRetry), findsOneWidget);
+    expect(find.text(AppStrings.serverSheetSubtitle), findsNothing);
   });
 
   testWidgets('연결 중 상태: 연결하는 중 칩과 취소가 보인다', (tester) async {
