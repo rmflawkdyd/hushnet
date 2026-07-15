@@ -42,6 +42,9 @@ dependencies:
   shared_preferences: ^2.5.5
   change_app_package_name: ^1.5.0
   flutter_native_splash: ^2.4.0
+  cryptography: ^2.9.0
+  flutter_secure_storage: ^10.3.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
@@ -98,6 +101,7 @@ flutter:
 
   assets:
     - assets/icon/
+    - assets/flags/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

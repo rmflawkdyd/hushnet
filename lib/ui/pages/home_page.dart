@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../core/traffic_formatters.dart';
+import '../../data/models/vpn_server.dart';
 import '../../data/models/vpn_traffic.dart';
 import '../../domain/entities/vpn_connection_status.dart';
 import '../../resources/strings/app_strings.dart';
@@ -10,10 +11,13 @@ import '../../resources/theme/app_colors.dart';
 import '../../resources/theme/app_spacing.dart';
 import '../../resources/theme/app_typography.dart';
 import '../atoms/secondary_button.dart';
+import '../molecules/server_bar.dart';
 import '../molecules/status_chip.dart';
 import '../organisms/connect_button.dart';
 import '../organisms/hushnet_top_bar.dart';
+import '../organisms/server_selection_sheet.dart';
 import '../organisms/traffic_stats_card.dart';
+import '../state/server_selection_controller.dart';
 import '../state/vpn_controller.dart';
 import 'info_page.dart';
 
@@ -36,6 +40,17 @@ class HomePage extends ConsumerWidget {
     }
   }
 
+  Future<void> _onServerSelected(
+    WidgetRef ref,
+    VpnServer server,
+    HomeState state,
+  ) async {
+    await ref.read(selectedServerIdProvider.notifier).select(server.id);
+    if (state == HomeState.connected) {
+      await ref.read(vpnControllerProvider.notifier).reconnect();
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statusAsync = ref.watch(vpnStatusProvider);
@@ -44,6 +59,17 @@ class HomePage extends ConsumerWidget {
     final errorMessage = ref.watch(vpnControllerProvider);
     final controller = ref.read(vpnControllerProvider.notifier);
     final state = _resolveState(status, errorMessage);
+    final currentServer = ref.watch(currentServerProvider);
+
+    ref.listen<bool>(selectedServerVanishedProvider, (_, hasVanished) {
+      if (!hasVanished) {
+        return;
+      }
+      ref.read(selectedServerIdProvider.notifier).clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.serverVanished)),
+      );
+    });
 
     final traffic = state == HomeState.connected
         ? (ref.watch(vpnTrafficProvider).asData?.value ?? VpnTraffic.zero)
@@ -68,6 +94,17 @@ class HomePage extends ConsumerWidget {
                 trailingIcon: LucideIcons.settings,
                 onTrailingTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(builder: (_) => const InfoPage()),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.space3),
+                child: ServerBar(
+                  server: currentServer,
+                  onTap: () => ServerSelectionSheet.show(
+                    context,
+                    onSelected: (server) =>
+                        _onServerSelected(ref, server, state),
+                  ),
                 ),
               ),
               SizedBox(
@@ -110,7 +147,6 @@ class HomePage extends ConsumerWidget {
                     : const SizedBox.shrink(),
               ),
               const Spacer(),
-              const _FooterInfo(),
             ],
           ),
         ),
@@ -216,18 +252,3 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _FooterInfo extends StatelessWidget {
-  const _FooterInfo();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(LucideIcons.mapPin, size: 14, color: AppColors.textSecondary),
-        const SizedBox(width: AppSpacing.space1),
-        Text(AppStrings.serverLabel, style: AppTypography.caption),
-      ],
-    );
-  }
-}
