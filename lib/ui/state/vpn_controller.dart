@@ -7,6 +7,7 @@ import '../../data/repositories/device_key_store.dart';
 import '../../data/repositories/registration_repository.dart';
 import '../../data/repositories/registration_vpn_config_repository.dart';
 import '../../data/repositories/vpn_config_repository.dart';
+import '../../domain/services/attestation_service.dart';
 import '../../domain/services/connection_config_builder.dart';
 import '../../domain/entities/vpn_connection_status.dart';
 import '../../domain/services/vpn_service.dart';
@@ -38,6 +39,7 @@ final vpnConfigRepositoryProvider = Provider<VpnConfigRepository>((ref) {
       registrationRepository: HttpRegistrationRepository(
         nodeBaseUrl: _nodeBaseUrl,
       ),
+      attestationProvider: createAttestationProvider(),
     ),
     selectedServerId: () => ref.read(selectedServerIdProvider.future),
   );

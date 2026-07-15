@@ -9,19 +9,32 @@ import 'package:hushnet_flutter/data/models/wireguard_key_pair.dart';
 import 'package:hushnet_flutter/data/repositories/device_key_store.dart';
 import 'package:hushnet_flutter/data/repositories/registration_repository.dart';
 import 'package:hushnet_flutter/data/repositories/secure_key_value_store.dart';
+import 'package:hushnet_flutter/domain/services/attestation_service.dart';
 import 'package:hushnet_flutter/domain/services/connection_config_builder.dart';
 import 'package:hushnet_flutter/domain/services/wireguard_config_assembler.dart';
 import 'package:hushnet_flutter/domain/services/wireguard_key_generator.dart';
 
 class _FakeRegistrationRepository implements RegistrationRepository {
+  RegistrationRequest? lastRequest;
+
   @override
   Future<RegistrationResponse> register(RegistrationRequest request) async {
+    lastRequest = request;
     return const RegistrationResponse(
       assignedAddress: '10.66.66.2/32',
       dns: '1.1.1.1',
       keyVersion: 1,
     );
   }
+}
+
+class _StubAttestationProvider implements AttestationProvider {
+  const _StubAttestationProvider(this.token);
+
+  final String token;
+
+  @override
+  Future<String?> requestAttestationToken() async => token;
 }
 
 class _InMemorySecureStore implements SecureKeyValueStore {
@@ -120,6 +133,43 @@ void main() {
     expect(config.wgQuickConfig, contains('PrivateKey = client-private'));
     expect(config.wgQuickConfig, contains('Address = 10.66.66.2/32'));
     expect(config.wgQuickConfig, contains('PublicKey = server-public'));
+  });
+
+  test('기본 provider는 attestation 토큰 없이 등록한다', () async {
+    final repository = _FakeRegistrationRepository();
+    final builder = ConnectionConfigBuilder(
+      deviceKeyStore: DeviceKeyStore(
+        secureStore: _InMemorySecureStore(),
+        keyGenerator: _FixedKeyGenerator(),
+      ),
+      registrationRepository: repository,
+    );
+
+    await builder.buildFor(_server);
+
+    expect(repository.lastRequest?.attestationToken, isNull);
+  });
+
+  test('provider가 준 attestation 토큰을 등록 요청에 싣는다', () async {
+    final repository = _FakeRegistrationRepository();
+    final builder = ConnectionConfigBuilder(
+      deviceKeyStore: DeviceKeyStore(
+        secureStore: _InMemorySecureStore(),
+        keyGenerator: _FixedKeyGenerator(),
+      ),
+      registrationRepository: repository,
+      attestationProvider: const _StubAttestationProvider('token-123'),
+    );
+
+    await builder.buildFor(_server);
+
+    expect(repository.lastRequest?.attestationToken, 'token-123');
+  });
+
+  test('NoopAttestationProvider는 null 토큰을 반환한다', () async {
+    const provider = NoopAttestationProvider();
+
+    expect(await provider.requestAttestationToken(), isNull);
   });
 
   group('HttpRegistrationRepository', () {
