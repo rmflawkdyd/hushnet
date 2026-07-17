@@ -29,6 +29,7 @@ const _jp = VpnServer(
   countryCode: 'JP',
   city: '도쿄',
   endpoint: 'jp.example:51820',
+  registerUrl: 'https://jp.example',
   serverPublicKey: 'server-public',
   dns: '1.1.1.1',
   allowedIps: '0.0.0.0/0, ::/0',

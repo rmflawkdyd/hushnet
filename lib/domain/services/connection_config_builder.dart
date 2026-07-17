@@ -27,6 +27,7 @@ class ConnectionConfigBuilder {
     final attestationToken = await _attestationProvider.requestAttestationToken();
 
     final registration = await _registrationRepository.register(
+      server.registerUrl,
       RegistrationRequest(
         serverId: server.id,
         clientPublicKey: keyPair.publicKeyBase64,

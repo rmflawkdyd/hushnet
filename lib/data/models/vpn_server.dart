@@ -18,6 +18,7 @@ class VpnServer {
     required this.countryCode,
     required this.city,
     required this.endpoint,
+    required this.registerUrl,
     required this.serverPublicKey,
     required this.dns,
     required this.allowedIps,
@@ -30,6 +31,7 @@ class VpnServer {
   final String countryCode;
   final String city;
   final String endpoint;
+  final String registerUrl;
   final String serverPublicKey;
   final String dns;
   final String allowedIps;
@@ -45,6 +47,7 @@ class VpnServer {
       countryCode: json['countryCode'] as String,
       city: json['city'] as String,
       endpoint: json['endpoint'] as String,
+      registerUrl: json['registerUrl'] as String,
       serverPublicKey: json['serverPublicKey'] as String,
       dns: json['dns'] as String,
       allowedIps: json['allowedIps'] as String,
@@ -60,6 +63,7 @@ class VpnServer {
       'countryCode': countryCode,
       'city': city,
       'endpoint': endpoint,
+      'registerUrl': registerUrl,
       'serverPublicKey': serverPublicKey,
       'dns': dns,
       'allowedIps': allowedIps,

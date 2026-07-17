@@ -5,22 +5,27 @@ import 'package:http/http.dart' as http;
 import '../models/server_registration.dart';
 
 abstract class RegistrationRepository {
-  Future<RegistrationResponse> register(RegistrationRequest request);
+  Future<RegistrationResponse> register(
+    String registerBaseUrl,
+    RegistrationRequest request,
+  );
 }
 
 class HttpRegistrationRepository implements RegistrationRepository {
-  HttpRegistrationRepository({required this.nodeBaseUrl, http.Client? client})
+  HttpRegistrationRepository({http.Client? client})
     : _client = client ?? http.Client();
 
-  final String nodeBaseUrl;
   final http.Client _client;
 
   @override
-  Future<RegistrationResponse> register(RegistrationRequest request) async {
+  Future<RegistrationResponse> register(
+    String registerBaseUrl,
+    RegistrationRequest request,
+  ) async {
     http.Response response;
     try {
       response = await _client.post(
-        Uri.parse('$nodeBaseUrl/register'),
+        Uri.parse('$registerBaseUrl/register'),
         headers: const {'Content-Type': 'application/json'},
         body: jsonEncode(request.toJson()),
       );

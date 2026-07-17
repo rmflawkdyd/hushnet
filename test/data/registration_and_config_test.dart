@@ -16,9 +16,14 @@ import 'package:hushnet_flutter/domain/services/wireguard_key_generator.dart';
 
 class _FakeRegistrationRepository implements RegistrationRepository {
   RegistrationRequest? lastRequest;
+  String? lastRegisterBaseUrl;
 
   @override
-  Future<RegistrationResponse> register(RegistrationRequest request) async {
+  Future<RegistrationResponse> register(
+    String registerBaseUrl,
+    RegistrationRequest request,
+  ) async {
+    lastRegisterBaseUrl = registerBaseUrl;
     lastRequest = request;
     return const RegistrationResponse(
       assignedAddress: '10.66.66.2/32',
@@ -64,6 +69,7 @@ const _server = VpnServer(
   countryCode: 'JP',
   city: 'Tokyo',
   endpoint: 'jp.example:51820',
+  registerUrl: 'https://jp.example',
   serverPublicKey: 'server-public',
   dns: '1.1.1.1',
   allowedIps: '0.0.0.0/0, ::/0',
@@ -135,6 +141,21 @@ void main() {
     expect(config.wgQuickConfig, contains('PublicKey = server-public'));
   });
 
+  test('선택한 서버의 registerUrl로 등록 요청을 보낸다', () async {
+    final repository = _FakeRegistrationRepository();
+    final builder = ConnectionConfigBuilder(
+      deviceKeyStore: DeviceKeyStore(
+        secureStore: _InMemorySecureStore(),
+        keyGenerator: _FixedKeyGenerator(),
+      ),
+      registrationRepository: repository,
+    );
+
+    await builder.buildFor(_server);
+
+    expect(repository.lastRegisterBaseUrl, 'https://jp.example');
+  });
+
   test('기본 provider는 attestation 토큰 없이 등록한다', () async {
     final repository = _FakeRegistrationRepository();
     final builder = ConnectionConfigBuilder(
@@ -172,6 +193,12 @@ void main() {
     expect(await provider.requestAttestationToken(), isNull);
   });
 
+  test('StaticAttestationProvider는 주입된 토큰을 그대로 반환한다', () async {
+    const provider = StaticAttestationProvider('dev-token');
+
+    expect(await provider.requestAttestationToken(), 'dev-token');
+  });
+
   group('HttpRegistrationRepository', () {
     test('200 응답을 RegistrationResponse로 파싱한다', () async {
       final client = MockClient((request) async {
@@ -185,12 +212,10 @@ void main() {
           200,
         );
       });
-      final repository = HttpRegistrationRepository(
-        nodeBaseUrl: 'https://node.example',
-        client: client,
-      );
+      final repository = HttpRegistrationRepository(client: client);
 
       final response = await repository.register(
+        'https://node.example',
         const RegistrationRequest(serverId: 's', clientPublicKey: 'k'),
       );
 
@@ -200,13 +225,11 @@ void main() {
 
     test('403은 attestationRejected로 매핑된다', () async {
       final client = MockClient((_) async => http.Response('', 403));
-      final repository = HttpRegistrationRepository(
-        nodeBaseUrl: 'https://node.example',
-        client: client,
-      );
+      final repository = HttpRegistrationRepository(client: client);
 
       expect(
         () => repository.register(
+          'https://node.example',
           const RegistrationRequest(serverId: 's', clientPublicKey: 'k'),
         ),
         throwsA(
@@ -221,13 +244,11 @@ void main() {
 
     test('503은 serverUnavailable로 매핑된다', () async {
       final client = MockClient((_) async => http.Response('', 503));
-      final repository = HttpRegistrationRepository(
-        nodeBaseUrl: 'https://node.example',
-        client: client,
-      );
+      final repository = HttpRegistrationRepository(client: client);
 
       expect(
         () => repository.register(
+          'https://node.example',
           const RegistrationRequest(serverId: 's', clientPublicKey: 'k'),
         ),
         throwsA(

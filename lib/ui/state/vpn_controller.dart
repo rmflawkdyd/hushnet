@@ -29,16 +29,12 @@ final vpnTrafficProvider = StreamProvider<VpnTraffic>((ref) {
       .map((snapshot) => speedCalculator.addSnapshot(snapshot, DateTime.now()));
 });
 
-const String _nodeBaseUrl = String.fromEnvironment('HUSHNET_NODE_BASE_URL');
-
 final vpnConfigRepositoryProvider = Provider<VpnConfigRepository>((ref) {
   return RegistrationVpnConfigRepository(
     serverDirectoryRepository: ref.watch(serverDirectoryRepositoryProvider),
     connectionConfigBuilder: ConnectionConfigBuilder(
       deviceKeyStore: DeviceKeyStore(),
-      registrationRepository: HttpRegistrationRepository(
-        nodeBaseUrl: _nodeBaseUrl,
-      ),
+      registrationRepository: HttpRegistrationRepository(),
       attestationProvider: createAttestationProvider(),
     ),
     selectedServerId: () => ref.read(selectedServerIdProvider.future),
