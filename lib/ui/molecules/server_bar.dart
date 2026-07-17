@@ -76,14 +76,6 @@ class ServerBar extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(width: AppSpacing.space2),
-        Flexible(
-          child: Text(
-            '· ${server.city}',
-            style: AppTypography.caption,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
       ],
     );
   }

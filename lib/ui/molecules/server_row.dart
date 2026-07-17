@@ -53,14 +53,7 @@ class ServerRow extends StatelessWidget {
                 FlagIcon(countryCode: server.countryCode),
                 const SizedBox(width: AppSpacing.space3),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(server.country, style: AppTypography.bodyStrong),
-                      const SizedBox(height: 2),
-                      Text(server.city, style: AppTypography.caption),
-                    ],
-                  ),
+                  child: Text(server.country, style: AppTypography.bodyStrong),
                 ),
                 _buildTrailing(),
               ],

@@ -67,7 +67,6 @@ const _server = VpnServer(
   id: 'jp-oracle-1',
   country: '일본',
   countryCode: 'JP',
-  city: 'Tokyo',
   endpoint: 'jp.example:51820',
   registerUrl: 'https://jp.example',
   serverPublicKey: 'server-public',
