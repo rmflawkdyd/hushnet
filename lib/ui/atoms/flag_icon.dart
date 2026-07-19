@@ -12,7 +12,7 @@ import '../../resources/theme/app_typography.dart';
 class FlagIcon extends StatelessWidget {
   const FlagIcon({super.key, required this.countryCode, this.width = 24});
 
-  static const Set<String> _bundledCountryCodes = {'JP', 'US'};
+  static const Set<String> _bundledCountryCodes = {'JP', 'US', 'KR'};
 
   final String countryCode;
   final double width;

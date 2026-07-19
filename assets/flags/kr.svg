@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+  <rect width="900" height="600" fill="#fff"/>
+  <g transform="rotate(33.69 450.0 300.0)">
+    <circle cx="450.0" cy="300.0" r="150" fill="#c60c30"/>
+    <path d="M 300.0 300.0 A 150 150 0 0 0 600.0 300.0 Z" fill="#003478"/>
+    <path d="M 300.0 300.0 A 75.0 75.0 0 0 0 450.0 300.0 Z" fill="#c60c30"/>
+    <path d="M 450.0 300.0 A 75.0 75.0 0 0 1 600.0 300.0 Z" fill="#003478"/>
+  </g>
+  <g transform="translate(241.98726298011047 161.32519609714868) rotate(33.69)">
+    <rect x="-72.5" y="-48.0" width="145" height="22" fill="#000000"/>
+    <rect x="-72.5" y="-11.0" width="145" height="22" fill="#000000"/>
+    <rect x="-72.5" y="26.0" width="145" height="22" fill="#000000"/>
+  </g>
+  <g transform="translate(658.0127370198895 161.32519609714868) rotate(-33.69)">
+    <rect x="-72.5" y="-48.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="-48.0" width="50.5" height="22" fill="#000000"/>
+    <rect x="-72.5" y="-11.0" width="145" height="22" fill="#000000"/>
+    <rect x="-72.5" y="26.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="26.0" width="50.5" height="22" fill="#000000"/>
+  </g>
+  <g transform="translate(241.98726298011047 438.6748039028513) rotate(-33.69)">
+    <rect x="-72.5" y="-48.0" width="145" height="22" fill="#000000"/>
+    <rect x="-72.5" y="-11.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="-11.0" width="50.5" height="22" fill="#000000"/>
+    <rect x="-72.5" y="26.0" width="145" height="22" fill="#000000"/>
+  </g>
+  <g transform="translate(658.0127370198895 438.6748039028513) rotate(33.69)">
+    <rect x="-72.5" y="-48.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="-48.0" width="50.5" height="22" fill="#000000"/>
+    <rect x="-72.5" y="-11.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="-11.0" width="50.5" height="22" fill="#000000"/>
+    <rect x="-72.5" y="26.0" width="50.5" height="22" fill="#000000"/><rect x="22.0" y="26.0" width="50.5" height="22" fill="#000000"/>
+  </g>
+</svg>
