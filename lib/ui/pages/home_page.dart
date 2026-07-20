@@ -15,6 +15,7 @@ import '../molecules/server_bar.dart';
 import '../molecules/status_chip.dart';
 import '../organisms/connect_button.dart';
 import '../organisms/hushnet_top_bar.dart';
+import '../organisms/server_change_blocked_dialog.dart';
 import '../organisms/server_selection_sheet.dart';
 import '../organisms/traffic_stats_card.dart';
 import '../state/server_selection_controller.dart';
@@ -40,15 +41,11 @@ class HomePage extends ConsumerWidget {
     }
   }
 
-  Future<void> _onServerSelected(
-    WidgetRef ref,
-    VpnServer server,
-    HomeState state,
-  ) async {
+  bool _canChangeServer(HomeState state) =>
+      state == HomeState.disconnected || state == HomeState.failed;
+
+  Future<void> _onServerSelected(WidgetRef ref, VpnServer server) async {
     await ref.read(selectedServerIdProvider.notifier).select(server.id);
-    if (state == HomeState.connected) {
-      await ref.read(vpnControllerProvider.notifier).reconnect();
-    }
   }
 
   @override
@@ -74,6 +71,9 @@ class HomePage extends ConsumerWidget {
     final traffic = state == HomeState.connected
         ? (ref.watch(vpnTrafficProvider).asData?.value ?? VpnTraffic.zero)
         : VpnTraffic.zero;
+    final elapsed = state == HomeState.connected
+        ? (ref.watch(connectionElapsedProvider).asData?.value ?? Duration.zero)
+        : Duration.zero;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -100,11 +100,17 @@ class HomePage extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: AppSpacing.space3),
                 child: ServerBar(
                   server: currentServer,
-                  onTap: () => ServerSelectionSheet.show(
-                    context,
-                    onSelected: (server) =>
-                        _onServerSelected(ref, server, state),
-                  ),
+                  enabled: _canChangeServer(state),
+                  onTap: () {
+                    if (_canChangeServer(state)) {
+                      ServerSelectionSheet.show(
+                        context,
+                        onSelected: (server) => _onServerSelected(ref, server),
+                      );
+                    } else {
+                      ServerChangeBlockedDialog.show(context);
+                    }
+                  },
                 ),
               ),
               SizedBox(
@@ -113,7 +119,7 @@ class HomePage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     StatusChip(
-                      label: _chipLabel(state, traffic),
+                      label: _chipLabel(state, elapsed),
                       dotColor: _dotColor(state),
                     ),
                     const SizedBox(height: AppSpacing.space3),
@@ -154,7 +160,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  String _chipLabel(HomeState state, VpnTraffic traffic) {
+  String _chipLabel(HomeState state, Duration elapsed) {
     switch (state) {
       case HomeState.disconnected:
         return AppStrings.stateDisconnectedChip;
@@ -162,7 +168,7 @@ class HomePage extends ConsumerWidget {
         return AppStrings.stateConnectingChip;
       case HomeState.connected:
         return '${AppStrings.stateConnectedChipPrefix} · '
-            '${formatDuration(traffic.duration)}';
+            '${formatElapsed(elapsed)}';
       case HomeState.failed:
         return AppStrings.stateFailedChip;
     }

@@ -57,6 +57,7 @@ class _StubSelectedServerId extends SelectedServerIdNotifier {
 Widget _homeWith(
   VpnConnectionStatus status, {
   VpnTraffic? traffic,
+  Duration? elapsed,
   List<VpnServer> servers = _servers,
 }) {
   return ProviderScope(
@@ -64,6 +65,9 @@ Widget _homeWith(
       vpnStatusProvider.overrideWith((ref) => Stream.value(status)),
       vpnTrafficProvider.overrideWith(
         (ref) => Stream.value(traffic ?? VpnTraffic.zero),
+      ),
+      connectionElapsedProvider.overrideWith(
+        (ref) => Stream.value(elapsed ?? Duration.zero),
       ),
       serverListProvider.overrideWith(() => _StubServerList(servers)),
       selectedServerIdProvider.overrideWith(_StubSelectedServerId.new),
@@ -138,8 +142,8 @@ void main() {
         traffic: const VpnTraffic(
           downloadBytesPerSecond: 1258291,
           uploadBytesPerSecond: 348160,
-          duration: '00:02:15',
         ),
+        elapsed: const Duration(minutes: 2, seconds: 15),
       ),
     );
     await tester.pumpAndSettle();
@@ -153,6 +157,23 @@ void main() {
     expect(find.text(AppStrings.statUpload), findsOneWidget);
     expect(find.text('1.2 MB/s'), findsOneWidget);
     expect(find.text('340.0 KB/s'), findsOneWidget);
+  });
+
+  testWidgets('연결됨 상태: 변경을 누르면 시트 대신 안내 팝업이 뜬다', (tester) async {
+    await _pumpPhone(tester, _homeWith(VpnConnectionStatus.connected));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(AppStrings.serverChange));
+    await tester.pumpAndSettle();
+
+    expect(find.text(AppStrings.serverChangeBlockedTitle), findsOneWidget);
+    expect(find.text(AppStrings.serverChangeBlockedBody), findsOneWidget);
+    expect(find.text(AppStrings.confirm), findsOneWidget);
+    expect(find.text(AppStrings.serverSheetTitle), findsNothing);
+
+    await tester.tap(find.text(AppStrings.confirm));
+    await tester.pumpAndSettle();
+    expect(find.text(AppStrings.serverChangeBlockedTitle), findsNothing);
   });
 
   testWidgets('연결 실패 상태: 실패 칩과 다시 시도가 보인다', (tester) async {

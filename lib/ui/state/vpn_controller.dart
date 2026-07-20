@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/traffic_speed_calculator.dart';
@@ -20,7 +22,7 @@ final vpnStatusProvider = StreamProvider<VpnConnectionStatus>((ref) {
   return ref.watch(vpnServiceProvider).statusStream;
 });
 
-/// 연결됨 상태에서 실시간 트래픽(속도·경과시간)을 방출한다.
+/// 연결됨 상태에서 실시간 트래픽 속도를 방출한다.
 final vpnTrafficProvider = StreamProvider<VpnTraffic>((ref) {
   final speedCalculator = TrafficSpeedCalculator();
   return ref
@@ -28,6 +30,30 @@ final vpnTrafficProvider = StreamProvider<VpnTraffic>((ref) {
       .trafficStream
       .map((snapshot) => speedCalculator.addSnapshot(snapshot, DateTime.now()));
 });
+
+/// 연결 경과 시간을 로컬 타이머로 계산한다.
+/// 트래픽 스냅샷과 분리되어, connected가 된 시각을 앵커로 매초 갱신한다.
+/// 트래픽이 없거나 스냅샷이 늦어도 시간은 정상적으로 흐른다.
+final connectionElapsedProvider = StreamProvider<Duration>((ref) {
+  final isConnected = ref.watch(
+    vpnStatusProvider.select(
+      (status) => status.asData?.value == VpnConnectionStatus.connected,
+    ),
+  );
+  if (!isConnected) {
+    return Stream.value(Duration.zero);
+  }
+  final connectedAt = DateTime.now();
+  return _connectionElapsedTicks(connectedAt);
+});
+
+Stream<Duration> _connectionElapsedTicks(DateTime connectedAt) async* {
+  yield Duration.zero;
+  yield* Stream.periodic(
+    const Duration(seconds: 1),
+    (_) => DateTime.now().difference(connectedAt),
+  );
+}
 
 final vpnConfigRepositoryProvider = Provider<VpnConfigRepository>((ref) {
   return RegistrationVpnConfigRepository(
@@ -76,12 +102,6 @@ class VpnController extends Notifier<String?> {
     } catch (_) {
       state = AppStrings.disconnectFailed;
     }
-  }
-
-  /// 다른 서버를 고르면 기존 터널을 끊고 새 서버로 다시 연결한다 (PM 3장 분기).
-  Future<void> reconnect() async {
-    await _service.disconnect();
-    await connect();
   }
 }
 

@@ -11,15 +11,12 @@ String formatSpeed(double bytesPerSecond) {
   return '${value.toStringAsFixed(1)} ${units[unitIndex]}';
 }
 
-/// 플러그인 duration("HH:MM:SS")을 사용자가 읽기 쉬운 형태로 재포맷한다.
-/// 1시간 미만이면 앞 "00:"을 떼어 mm:ss, 1시간 이상이면 h:mm:ss.
-String formatDuration(String? hhmmss) {
-  if (hhmmss == null) return '00:00';
-  final parts = hhmmss.split(':');
-  if (parts.length != 3) return hhmmss;
-  final hours = int.tryParse(parts[0]) ?? 0;
-  final minutes = parts[1].padLeft(2, '0');
-  final seconds = parts[2].padLeft(2, '0');
+/// 연결 경과 시간을 사용자가 읽기 쉬운 형태로 포맷한다.
+/// 1시간 미만이면 mm:ss, 1시간 이상이면 h:mm:ss.
+String formatElapsed(Duration elapsed) {
+  final hours = elapsed.inHours;
+  final minutes = elapsed.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final seconds = elapsed.inSeconds.remainder(60).toString().padLeft(2, '0');
   if (hours > 0) return '$hours:$minutes:$seconds';
   return '$minutes:$seconds';
 }

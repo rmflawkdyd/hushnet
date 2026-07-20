@@ -20,15 +20,13 @@ class TrafficSpeedCalculator {
   VpnTraffic addSnapshot(Map<String, dynamic> snapshot, DateTime sampledAt) {
     final downloadKilobytes = _toDouble(snapshot['totalDownload']);
     final uploadKilobytes = _toDouble(snapshot['totalUpload']);
-    final duration = snapshot['duration']?.toString() ?? '00:00:00';
 
     final previousSampleTime = _previousSampleTime;
     if (previousSampleTime == null) {
       _rememberSample(downloadKilobytes, uploadKilobytes, sampledAt);
-      return VpnTraffic(
+      return const VpnTraffic(
         downloadBytesPerSecond: 0,
         uploadBytesPerSecond: 0,
-        duration: duration,
       );
     }
 
@@ -38,7 +36,6 @@ class TrafficSpeedCalculator {
       return VpnTraffic(
         downloadBytesPerSecond: _lastDownloadBytesPerSecond,
         uploadBytesPerSecond: _lastUploadBytesPerSecond,
-        duration: duration,
       );
     }
 
@@ -57,7 +54,6 @@ class TrafficSpeedCalculator {
     return VpnTraffic(
       downloadBytesPerSecond: _lastDownloadBytesPerSecond,
       uploadBytesPerSecond: _lastUploadBytesPerSecond,
-      duration: duration,
     );
   }
 

@@ -107,6 +107,5 @@ void main() {
 
     expect(traffic.downloadBytesPerSecond, 0);
     expect(traffic.uploadBytesPerSecond, 0);
-    expect(traffic.duration, '00:00:00');
   });
 }

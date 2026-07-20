@@ -16,6 +16,9 @@ abstract final class AppStrings {
   static const String serverEmptyTitle = '서버 목록을 준비하고 있어요';
   static const String serverEmptyBody = '잠시 후 다시 시도해 주세요';
   static const String serverVanished = '선택한 서버를 더 이상 쓸 수 없어 기본 서버로 바꿨어요';
+  static const String serverChangeBlockedTitle = '연결 중에는 바꿀 수 없어요';
+  static const String serverChangeBlockedBody = '서버를 바꾸려면 먼저 연결을 끊어주세요.';
+  static const String confirm = '확인';
 
   // 스플래시
   static const String splashTagline = '기록 없이, 켜면 바로 보호돼요';
@@ -64,5 +67,5 @@ abstract final class AppStrings {
   static String versionFooter(String version) => 'Hushnet 버전 $version';
 
   /// 개인정보처리방침 URL — 배포 전 확정(자리표시자 이음새, 회신 문서 5번).
-  static const String privacyPolicyUrl = 'https://hushnet.example.com/privacy';
+  static const String privacyPolicyUrl = 'https://rmflawkdyd.github.io/privacy-policy.html';
 }
