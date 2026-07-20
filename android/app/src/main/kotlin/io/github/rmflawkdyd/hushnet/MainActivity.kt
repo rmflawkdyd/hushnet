@@ -1,4 +1,4 @@
-package com.example.hushnet
+package io.github.rmflawkdyd.hushnet
 
 import android.app.Activity
 import android.content.Intent
