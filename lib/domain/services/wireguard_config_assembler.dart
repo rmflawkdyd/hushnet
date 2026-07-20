@@ -1,3 +1,4 @@
+import '../../core/ios_vpn_config.dart';
 import '../../data/models/server_registration.dart';
 import '../../data/models/vpn_server.dart';
 import '../../data/models/wireguard_config.dart';
@@ -33,6 +34,7 @@ class WireGuardConfigAssembler {
       name: server.country,
       serverAddress: server.endpoint,
       wgQuickConfig: config.toString(),
+      providerBundleIdentifier: IosVpnConfig.extensionBundleId,
     );
   }
 }

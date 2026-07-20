@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:wireguard_flutter_plus/wireguard_flutter_plus.dart';
 
+import '../../core/ios_vpn_config.dart';
 import '../../data/models/wireguard_config.dart';
 import '../entities/vpn_connection_status.dart';
 
@@ -11,28 +12,30 @@ class VpnService {
   final _wireguard = WireGuardFlutter.instance;
   bool _initialized = false;
 
+  bool get _isApplePlatform =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
   Stream<VpnConnectionStatus> get statusStream =>
       _wireguard.vpnStageSnapshot.map(VpnConnectionStatusX.fromStage);
 
   Stream<Map<String, dynamic>> get trafficStream => _wireguard.trafficSnapshot;
 
-  Future<void> initialize({
-    String? iosAppGroup,
-    String? extensionBundleId,
-  }) async {
+  Future<void> initialize() async {
     if (_initialized) return;
     await _wireguard.initialize(
       interfaceName: 'hushnet',
       vpnName: 'Hushnet',
-      iosAppGroup: iosAppGroup,
-      extensionBundleId: extensionBundleId,
+      iosAppGroup: _isApplePlatform ? IosVpnConfig.appGroup : null,
+      extensionBundleId:
+          _isApplePlatform ? IosVpnConfig.extensionBundleId : null,
     );
     _initialized = true;
   }
 
   Future<bool> hasPermission() async {
-    if (defaultTargetPlatform != TargetPlatform.android) {
-      return _wireguard.checkVpnPermission();
+    if (_isApplePlatform) {
+      return true;
     }
     final granted =
         await _permissionChannel.invokeMethod<bool>('hasVpnPermission');
@@ -40,8 +43,8 @@ class VpnService {
   }
 
   Future<bool> requestPermission() async {
-    if (defaultTargetPlatform != TargetPlatform.android) {
-      return _wireguard.checkVpnPermission();
+    if (_isApplePlatform) {
+      return true;
     }
     final granted =
         await _permissionChannel.invokeMethod<bool>('requestVpnPermission');
