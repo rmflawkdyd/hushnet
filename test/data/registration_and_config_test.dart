@@ -98,6 +98,7 @@ void main() {
       expect(config.wgQuickConfig, contains('Address = 10.66.66.5/32'));
       expect(config.wgQuickConfig, contains('PublicKey = server-public'));
       expect(config.wgQuickConfig, contains('Endpoint = jp.example:51820'));
+      expect(config.wgQuickConfig, contains('PersistentKeepalive = 25'));
       expect(config.wgQuickConfig, isNot(contains('PresharedKey')));
     });
 

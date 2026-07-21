@@ -7,6 +7,8 @@ import '../../data/models/wireguard_key_pair.dart';
 class WireGuardConfigAssembler {
   const WireGuardConfigAssembler();
 
+  static const int _persistentKeepaliveSeconds = 25;
+
   WireGuardConfig assemble({
     required VpnServer server,
     required WireGuardKeyPair keyPair,
@@ -28,7 +30,8 @@ class WireGuardConfigAssembler {
 
     config
       ..writeln('Endpoint = ${server.endpoint}')
-      ..writeln('AllowedIPs = ${server.allowedIps}');
+      ..writeln('AllowedIPs = ${server.allowedIps}')
+      ..writeln('PersistentKeepalive = $_persistentKeepaliveSeconds');
 
     return WireGuardConfig(
       name: server.country,
